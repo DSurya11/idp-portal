@@ -2,12 +2,13 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: idp-portal
-  description: An example of a Backstage application.
-  # Example for optional annotations
-  # annotations:
-  #   github.com/project-slug: backstage/backstage
-  #   backstage.io/techdocs-ref: dir:.
+  description: Backstage developer portal for the IDP (catalog + software templates)
+  annotations:
+    github.com/project-slug: DSurya11/idp-portal
+  links:
+    - url: https://github.com/DSurya11/idp-gitops/tree/main/apps/idp-portal
+      title: Deployment config (idp-gitops)
 spec:
   type: website
-  owner: john@example.com
+  owner: DSurya11
   lifecycle: experimental

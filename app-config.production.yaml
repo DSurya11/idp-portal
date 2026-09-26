@@ -69,18 +69,11 @@ catalog:
       rules:
         - allow: [Template]
 
-    # Local example data, replace this with your production config, these are intended for demo use only.
-    # File locations are relative to the backend process, typically in a deployed context, such as in a Docker container, this will be the root
-    - type: file
-      target: ./examples/entities.yaml
+    - type: url
+      target: https://github.com/DSurya11/idp-portal/blob/main/catalog-info.yaml
 
-    # Local example template
-    - type: file
-      target: ./examples/template/template.yaml
-      rules:
-        - allow: [Template]
-
-    # Local example organizational data
+    # The guest user/group that guest sign-in resolves to (path relative to the
+    # container's working directory)
     - type: file
       target: ./examples/org.yaml
       rules:
