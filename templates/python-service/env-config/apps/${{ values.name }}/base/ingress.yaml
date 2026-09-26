@@ -1,11 +1,11 @@
-# Joins the shared ALB (group ff-idp): no new load balancer, no extra cost.
+# Joins the shared ALB (group idp): no new load balancer, no extra cost.
 # group.order 10 < feature-flag-api's catch-all (1000), so /${{ values.name }} is matched first.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ${{ values.name }}
   annotations:
-    alb.ingress.kubernetes.io/group.name: ff-idp
+    alb.ingress.kubernetes.io/group.name: idp
     alb.ingress.kubernetes.io/group.order: "10"
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip

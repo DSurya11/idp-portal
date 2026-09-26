@@ -34,7 +34,7 @@ backend:
       #     $file: <file-path>/ca/server.crt
 
 # GitHub App "ff-idp-backstage" (Step 30): catalog reads + scaffolder writes (create repos,
-# open PRs). Values come from ff-idp/backstage-github-app via ESO; they are loaded into
+# open PRs). Values come from idp/backstage-github-app via ESO; they are loaded into
 # Secrets Manager from ~/.ff-idp on the operator's laptop by `make up` (never in Git).
 # This list REPLACES app-config.yaml's PAT-based entry (config arrays are not merged).
 integrations:
@@ -61,7 +61,7 @@ catalog:
   locations:
     # The first real service in the catalog.
     - type: url
-      target: https://github.com/DSurya11/Feature-Flag-Service/blob/main/catalog-info.yaml
+      target: https://github.com/DSurya11/feature-flag-service/blob/main/catalog-info.yaml
 
     # Golden path templates, read from GitHub (updating a template needs no image rebuild).
     - type: url

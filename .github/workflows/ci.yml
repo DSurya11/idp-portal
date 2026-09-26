@@ -54,7 +54,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::693906847772:role/ff-idp-github-ci
+          role-to-assume: arn:aws:iam::693906847772:role/idp-github-ci
           aws-region: ap-south-1
 
       - name: Login to Amazon ECR
@@ -70,7 +70,7 @@ jobs:
             -t "${ECR_IMAGE}:${GITHUB_SHA}" .
           docker push "${ECR_IMAGE}:${GITHUB_SHA}"
 
-      # Same gate as Feature-Flag-Service: HIGH/CRITICAL with a fix available fails the
+      # Same gate as feature-flag-service: HIGH/CRITICAL with a fix available fails the
       # job, so update-env-config never ships the image. The image is local here (native
       # build, no buildx push), so Trivy scans it straight from the docker daemon.
       - name: Trivy vulnerability scan
@@ -98,14 +98,14 @@ jobs:
           app-id: ${{ secrets.FF_IDP_CI_BOT_APP_ID }}
           private-key: ${{ secrets.FF_IDP_CI_BOT_PRIVATE_KEY }}
           owner: DSurya11
-          repositories: feature-flag-service-env-config
+          repositories: idp-gitops
 
       - name: Bump idp-portal tag in env-config
         env:
           TOKEN: ${{ steps.app-token.outputs.token }}
           NEW_TAG: ${{ needs.build.outputs.image_tag }}
         run: |
-          git clone "https://x-access-token:${TOKEN}@github.com/DSurya11/feature-flag-service-env-config.git" env-config
+          git clone "https://x-access-token:${TOKEN}@github.com/DSurya11/idp-gitops.git" env-config
           cd env-config
           F=apps/idp-portal/overlays/dev/kustomization.yaml
           sed -i "s|newTag:.*|newTag: ${NEW_TAG}|" "$F"

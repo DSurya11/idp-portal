@@ -1,10 +1,10 @@
-# ff-idp golden path: a new Python service, from form to running behind the ALB.
+# idp golden path: a new Python service, from form to running behind the ALB.
 #
 #   1. render skeleton          -> FastAPI app, Dockerfile, CI, catalog-info.yaml
 #   2. publish:github           -> new public repo DSurya11/<name>; its CI builds the image
 #   3. render env-config slice  -> Deployment/Service/Ingress/HPA/PDB + Argo Application,
 #                                  image pinned to the new repo's first commit
-#   4. publish:github:pull-request -> PR in feature-flag-service-env-config (the deploy gate)
+#   4. publish:github:pull-request -> PR in idp-gitops (the deploy gate)
 #   5. catalog:register         -> the service shows up in Backstage immediately
 #
 # Merge the PR once the new repo's CI is green; Argo CD deploys it within ~3 minutes.
@@ -78,7 +78,7 @@ spec:
       name: Open deploy PR in env-config
       action: publish:github:pull-request
       input:
-        repoUrl: github.com?owner=DSurya11&repo=feature-flag-service-env-config
+        repoUrl: github.com?owner=DSurya11&repo=idp-gitops
         branchName: add-${{ parameters.name }}
         title: 'Deploy ${{ parameters.name }} (golden path)'
         description: |

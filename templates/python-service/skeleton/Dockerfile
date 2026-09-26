@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-# Non-root, like every ff-idp workload (Kyverno disallow-root-containers).
+# Non-root, like every idp workload (Kyverno disallow-root-containers).
 RUN useradd --uid 10001 --create-home app
 WORKDIR /app
 COPY requirements.txt .

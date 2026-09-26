@@ -1,4 +1,4 @@
-# ${{ values.name }} - created by the ff-idp python-service golden path.
+# ${{ values.name }} - created by the idp python-service golden path.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
