@@ -33,6 +33,19 @@ backend:
       #   ca: # if you have a CA file and want to verify it you can uncomment this section
       #     $file: <file-path>/ca/server.crt
 
+# GitHub App "ff-idp-backstage" (Step 30): catalog reads + scaffolder writes (create repos,
+# open PRs). Values come from ff-idp/backstage-github-app via ESO; they are loaded into
+# Secrets Manager from ~/.ff-idp on the operator's laptop by `make up` (never in Git).
+# This list REPLACES app-config.yaml's PAT-based entry (config arrays are not merged).
+integrations:
+  github:
+    - host: github.com
+      apps:
+        - appId: ${GITHUB_APP_ID}
+          clientId: ${GITHUB_APP_CLIENT_ID}
+          clientSecret: ${GITHUB_APP_CLIENT_SECRET}
+          privateKey: ${GITHUB_APP_PRIVATE_KEY}
+
 auth:
   providers:
     # Guest sign-in only. Acceptable because Backstage is NOT exposed: there is no
@@ -49,6 +62,12 @@ catalog:
     # The first real service in the catalog.
     - type: url
       target: https://github.com/DSurya11/Feature-Flag-Service/blob/main/catalog-info.yaml
+
+    # Golden path templates, read from GitHub (updating a template needs no image rebuild).
+    - type: url
+      target: https://github.com/DSurya11/idp-portal/blob/main/templates/python-service/template.yaml
+      rules:
+        - allow: [Template]
 
     # Local example data, replace this with your production config, these are intended for demo use only.
     # File locations are relative to the backend process, typically in a deployed context, such as in a Docker container, this will be the root

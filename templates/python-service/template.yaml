@@ -1,0 +1,112 @@
+# ff-idp golden path: a new Python service, from form to running behind the ALB.
+#
+#   1. render skeleton          -> FastAPI app, Dockerfile, CI, catalog-info.yaml
+#   2. publish:github           -> new public repo DSurya11/<name>; its CI builds the image
+#   3. render env-config slice  -> Deployment/Service/Ingress/HPA/PDB + Argo Application,
+#                                  image pinned to the new repo's first commit
+#   4. publish:github:pull-request -> PR in feature-flag-service-env-config (the deploy gate)
+#   5. catalog:register         -> the service shows up in Backstage immediately
+#
+# Merge the PR once the new repo's CI is green; Argo CD deploys it within ~3 minutes.
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: python-service
+  title: Python service (FastAPI)
+  description: New FastAPI service with CI to ECR, zero-downtime deploy settings, autoscaling, and a route on the shared ALB.
+  tags:
+    - python
+    - fastapi
+    - golden-path
+spec:
+  owner: DSurya11
+  type: service
+
+  parameters:
+    - title: Service details
+      required: [name, description]
+      properties:
+        name:
+          title: Name
+          type: string
+          description: Lowercase letters, digits and dashes. Becomes the repo, namespace, ECR repo and URL path.
+          pattern: '^[a-z][a-z0-9-]{2,30}[a-z0-9]$'
+          ui:autofocus: true
+        description:
+          title: Description
+          type: string
+          maxLength: 120
+        owner:
+          title: Owner
+          type: string
+          default: DSurya11
+
+  steps:
+    - id: skeleton
+      name: Render service code
+      action: fetch:template
+      input:
+        url: ./skeleton
+        copyWithoutTemplating:
+          - .github/workflows/*
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+
+    - id: publish
+      name: Create GitHub repository
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=DSurya11&repo=${{ parameters.name }}
+        description: ${{ parameters.description }}
+        repoVisibility: public
+        defaultBranch: main
+        protectDefaultBranch: false
+
+    - id: envconfig
+      name: Render deployment config
+      action: fetch:template
+      input:
+        url: ./env-config
+        targetPath: ./env-config-change
+        values:
+          name: ${{ parameters.name }}
+          commitHash: ${{ steps.publish.output.commitHash }}
+
+    - id: pr
+      name: Open deploy PR in env-config
+      action: publish:github:pull-request
+      input:
+        repoUrl: github.com?owner=DSurya11&repo=feature-flag-service-env-config
+        branchName: add-${{ parameters.name }}
+        title: 'Deploy ${{ parameters.name }} (golden path)'
+        description: |
+          Adds `${{ parameters.name }}` to the dev cluster: Argo CD Application, Deployment,
+          Service, Ingress (shared ALB, path `/${{ parameters.name }}`), HPA and PDB.
+
+          Image: `svc/${{ parameters.name }}:${{ steps.publish.output.commitHash }}`, built by
+          ${{ steps.publish.output.remoteUrl }}/actions. **Merge once that run is green.**
+
+          Created by the Backstage python-service template.
+        sourcePath: ./env-config-change
+        targetPath: .
+
+    - id: register
+      name: Register in the catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: CI runs
+        url: ${{ steps.publish.output.remoteUrl }}/actions
+      - title: Deploy PR (merge when CI is green)
+        url: ${{ steps.pr.output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
