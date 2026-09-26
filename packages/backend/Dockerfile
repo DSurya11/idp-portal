@@ -25,6 +25,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get install -y --no-install-recommends libsqlite3-dev && \
     rm -rf /var/lib/apt/lists/*
 
+# npm ships in the node base image but is never used here (Yarn installs, `node` runs the
+# backend). Its bundled deps (tar, brace-expansion, ip-address) carried HIGH CVEs that
+# failed the Trivy gate - remove it rather than ship unused, vulnerable tooling.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 # From here on we use the least-privileged `node` user to run the backend.
 USER node
 
