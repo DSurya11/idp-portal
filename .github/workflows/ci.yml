@@ -68,7 +68,14 @@ jobs:
             --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
             --label "org.opencontainers.image.source=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
             -t "${ECR_IMAGE}:${GITHUB_SHA}" .
-          docker push "${ECR_IMAGE}:${GITHUB_SHA}"
+          # "Re-run" of a green build: the SHA tag is immutable and already in ECR.
+          # Skip the push instead of failing; Trivy below still scans the local build.
+          if aws ecr describe-images --repository-name idp-portal \
+               --image-ids imageTag="${GITHUB_SHA}" >/dev/null 2>&1; then
+            echo "Image ${GITHUB_SHA} already in ECR - skipping push"
+          else
+            docker push "${ECR_IMAGE}:${GITHUB_SHA}"
+          fi
 
       # Same gate as feature-flag-service: HIGH/CRITICAL with a fix available fails the
       # job, so update-env-config never ships the image. The image is local here (native
@@ -114,5 +121,9 @@ jobs:
           git add "$F"
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore(deploy): update idp-portal image to ${NEW_TAG}"
-          git pull --rebase origin main
-          git push origin main
+          # Other CI bots push to the same repo; rebase onto theirs (different files) and retry.
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin main && break
+            [ "$i" = 3 ] && exit 1
+            sleep $((i * 5))
+          done
