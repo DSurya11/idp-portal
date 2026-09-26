@@ -13,6 +13,13 @@ on:
     branches: ["**"]
   pull_request:
 
+# One run per commit. GitHub started two runs for the same push (2026-09-26); both built
+# and the second failed pushing the same IMMUTABLE tag. Keyed on the SHA, so a new commit
+# never cancels the build of a different one.
+concurrency:
+  group: ci-${{ github.sha }}
+  cancel-in-progress: true
+
 env:
   ECR_IMAGE: 693906847772.dkr.ecr.ap-south-1.amazonaws.com/idp-portal
 
