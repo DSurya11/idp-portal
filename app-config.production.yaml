@@ -21,6 +21,11 @@ backend:
       port: ${POSTGRES_PORT}
       user: ${POSTGRES_USER}
       password: ${POSTGRES_PASSWORD}
+      # RDS PostgreSQL 16 enforces SSL (rds.force_ssl=1). Node's pg driver does not
+      # negotiate it by default, so connect with TLS verified against AWS's public RDS CA.
+      ssl:
+        ca:
+          $file: ./rds-ca-global-bundle.pem
       # https://node-postgres.com/features/ssl
       # you can set the sslmode configuration option via the `PGSSLMODE` environment variable
       # see https://www.postgresql.org/docs/current/libpq-ssl.html Table 33.1. SSL Mode Descriptions (e.g. require)
@@ -30,13 +35,21 @@ backend:
 
 auth:
   providers:
-    guest: {}
+    # Guest sign-in only. Acceptable because Backstage is NOT exposed: there is no
+    # Ingress, it is reached only via `kubectl port-forward` (cluster credentials =
+    # access control). Real sign-in (GitHub OAuth) is needed before any public exposure.
+    guest:
+      dangerouslyAllowOutsideDevelopment: true
 
 catalog:
   # Overrides the default list locations from app-config.yaml as these contain example data.
   # See https://backstage.io/docs/features/software-catalog/#adding-components-to-the-catalog for more details
   # on how to get entities into the catalog.
   locations:
+    # The first real service in the catalog.
+    - type: url
+      target: https://github.com/DSurya11/Feature-Flag-Service/blob/main/catalog-info.yaml
+
     # Local example data, replace this with your production config, these are intended for demo use only.
     # File locations are relative to the backend process, typically in a deployed context, such as in a Docker container, this will be the root
     - type: file

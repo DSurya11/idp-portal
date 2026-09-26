@@ -194,6 +194,9 @@ catalog:
     - type: file
       target: ../../examples/entities.yaml
 
+    - type: url
+      target: https://github.com/DSurya11/Feature-Flag-Service/blob/main/catalog-info.yaml
+
     # Local example template
     - type: file
       target: ../../examples/template/template.yaml
@@ -222,7 +225,7 @@ kubernetes:
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
 permission:
   # setting this to `false` will disable permissions
-  enabled: true
+  enabled: false
 
 # see https://backstage.io/docs/ai/mcp-actions for more details
 mcpActions:
