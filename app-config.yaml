@@ -188,15 +188,13 @@ catalog:
     entityFilename: catalog-info.yaml
     pullRequestBranchName: backstage-integration
   rules:
-    - allow: [Component, System, API, Resource, Location]
+    - allow: [Component, System, API, Resource, Location, Template]
   locations:
     - type: url
       target: https://github.com/DSurya11/feature-flag-service/blob/main/catalog-info.yaml
 
     - type: url
-      target: https://github.com/DSurya11/idp-portal/blob/main/templates/python-service/template.yaml
-      rules:
-        - allow: [Template]
+      target: https://github.com/DSurya11/idp-portal/blob/main/templates/all-templates.yaml
 
     # The guest user/group that guest sign-in resolves to (file paths are relative to
     # packages/backend when running locally)

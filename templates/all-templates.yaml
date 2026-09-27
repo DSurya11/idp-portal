@@ -1,0 +1,10 @@
+# Every golden path template. app-config points at this file only, so a new template is
+# a git push (add it here); no Backstage image rebuild. Targets are relative to this file.
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: idp-templates
+  description: All IDP golden path templates
+spec:
+  targets:
+    - ./python-service/template.yaml

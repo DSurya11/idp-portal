@@ -47,10 +47,22 @@ integrations:
           privateKey: ${GITHUB_APP_PRIVATE_KEY}
 
 auth:
+  environment: production
   providers:
-    # Guest sign-in only. Acceptable because Backstage is NOT exposed: there is no
-    # Ingress, it is reached only via `kubectl port-forward` (cluster credentials =
-    # access control). Real sign-in (GitHub OAuth) is needed before any public exposure.
+    # GitHub sign-in via the GitHub App's OAuth client. The App's callback URL must be
+    # http://localhost:7007/api/auth/github/handler/frame (Backstage is reached only via
+    # port-forward). Templates use the signed-in user's token to create repos: an App
+    # installation token cannot create repos in a user account (POST /user/repos).
+    github:
+      production:
+        clientId: ${GITHUB_APP_CLIENT_ID}
+        clientSecret: ${GITHUB_APP_CLIENT_SECRET}
+        signIn:
+          resolvers:
+            # GitHub login must equal a User entity name (examples/org.yaml)
+            - resolver: usernameMatchingUserEntityName
+    # Guest stays as a fallback (a template run still asks for GitHub). Acceptable only because Backstage is NOT
+    # exposed: no Ingress, port-forward only (cluster credentials = access control).
     guest:
       dangerouslyAllowOutsideDevelopment: true
 
@@ -63,11 +75,11 @@ catalog:
     - type: url
       target: https://github.com/DSurya11/feature-flag-service/blob/main/catalog-info.yaml
 
-    # Golden path templates, read from GitHub (updating a template needs no image rebuild).
+    # Every golden path template, listed in one Location read from GitHub: adding or
+    # changing a template is a git push, no image rebuild. (Template is allowed by the
+    # global catalog.rules in app-config.yaml; nested targets do not inherit per-location rules.)
     - type: url
-      target: https://github.com/DSurya11/idp-portal/blob/main/templates/python-service/template.yaml
-      rules:
-        - allow: [Template]
+      target: https://github.com/DSurya11/idp-portal/blob/main/templates/all-templates.yaml
 
     - type: url
       target: https://github.com/DSurya11/idp-portal/blob/main/catalog-info.yaml

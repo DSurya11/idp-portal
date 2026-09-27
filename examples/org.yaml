@@ -15,3 +15,13 @@ metadata:
 spec:
   type: team
   children: []
+---
+# GitHub sign-in resolves to this user (usernameMatchingUserEntityName: GitHub login == name)
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: DSurya11
+spec:
+  profile:
+    displayName: DSurya11
+  memberOf: []
