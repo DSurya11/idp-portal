@@ -21,13 +21,13 @@ jobs:
       REGISTRY: 693906847772.dkr.ecr.ap-south-1.amazonaws.com
       REPO: svc/${{ github.event.repository.name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Build image
         run: docker build --build-arg GIT_SHA=${GITHUB_SHA} -t "${REGISTRY}/${REPO}:${GITHUB_SHA}" .
 
       - name: Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.REPO }}:${{ github.sha }}
           format: table
@@ -38,7 +38,7 @@ jobs:
 
       - name: Configure AWS credentials via OIDC
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           # Narrow role: can only create/push ECR repos under svc/*
           role-to-assume: arn:aws:iam::693906847772:role/idp-service-ci
@@ -46,7 +46,7 @@ jobs:
 
       - name: Login to Amazon ECR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
 
       - name: Ensure ECR repository exists
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

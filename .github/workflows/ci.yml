@@ -32,9 +32,9 @@ jobs:
     outputs:
       image_tag: ${{ github.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
 
@@ -52,14 +52,14 @@ jobs:
 
       - name: Configure AWS credentials via OIDC
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: arn:aws:iam::693906847772:role/idp-github-ci
           aws-region: ap-south-1
 
       - name: Login to Amazon ECR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
 
       - name: Build and push image (native arm64)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -82,7 +82,7 @@ jobs:
       # build, no buildx push), so Trivy scans it straight from the docker daemon.
       - name: Trivy vulnerability scan
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ env.ECR_IMAGE }}:${{ github.sha }}
           format: table
@@ -100,7 +100,7 @@ jobs:
     steps:
       - name: Generate GitHub App installation token
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
         with:
           app-id: ${{ secrets.FF_IDP_CI_BOT_APP_ID }}
           private-key: ${{ secrets.FF_IDP_CI_BOT_PRIVATE_KEY }}
@@ -111,13 +111,16 @@ jobs:
         env:
           TOKEN: ${{ steps.app-token.outputs.token }}
           NEW_TAG: ${{ needs.build.outputs.image_tag }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
         run: |
           git clone "https://x-access-token:${TOKEN}@github.com/DSurya11/idp-gitops.git" env-config
           cd env-config
           F=apps/idp-portal/overlays/dev/kustomization.yaml
           sed -i "s|newTag:.*|newTag: ${NEW_TAG}|" "$F"
-          git config user.name "ff-idp-ci-bot[bot]"
-          git config user.email "ff-idp-ci-bot[bot]@users.noreply.github.com"
+          # Commit as the App's bot user (name from the token, so an App rename needs no edit here)
+          BOT_ID=$(GH_TOKEN="${TOKEN}" gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${BOT_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
           git add "$F"
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "chore(deploy): update idp-portal image to ${NEW_TAG}"

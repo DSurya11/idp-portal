@@ -1,0 +1,18 @@
+# Weekly dependency PRs; CI tests each one. Actions are pinned by SHA and Dependabot keeps
+# the pins current (PLATFORM_REVIEW F11). Backstage core packages move together via
+# `yarn backstage-cli versions:bump`, so Dependabot ignores @backstage/* and handles the rest.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: weekly}
+    groups: {actions: {patterns: ["*"]}}
+  - package-ecosystem: npm
+    directory: /
+    schedule: {interval: weekly}
+    ignore:
+      - dependency-name: "@backstage/*"
+    groups: {npm: {patterns: ["*"], update-types: [minor, patch]}}
+  - package-ecosystem: docker
+    directory: /packages/backend
+    schedule: {interval: weekly}
