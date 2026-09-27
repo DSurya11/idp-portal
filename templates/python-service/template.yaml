@@ -1,7 +1,7 @@
 # idp golden path: a new Python service, from form to running behind the ALB.
 #
 #   1. render skeleton          -> FastAPI app, Dockerfile, CI, catalog-info.yaml
-#   2. publish:github           -> new public repo DSurya11/<name>; its CI builds the image
+#   2. publish:github           -> new public repo surya-idp/<name>; its CI builds the image
 #   3. render env-config slice  -> Deployment/Service/Ingress/HPA/PDB + Argo Application,
 #                                  image pinned to the new repo's first commit
 #   4. publish:github:pull-request -> PR in idp-gitops (the deploy gate)
@@ -30,12 +30,12 @@ spec:
           title: Name
           type: string
           description: Lowercase letters, digits and dashes (4-32). Becomes the repo, namespace, ECR repo and URL path.
-          # RepoUrlPicker value is github.com?owner=DSurya11&repo=<name>; this pattern validates <name>
-          pattern: '^github\.com\?owner=DSurya11&repo=[a-z][a-z0-9-]{2,30}[a-z0-9]$'
+          # RepoUrlPicker value is github.com?owner=surya-idp&repo=<name>; this pattern validates <name>
+          pattern: '^github\.com\?owner=surya-idp&repo=[a-z][a-z0-9-]{2,30}[a-z0-9]$'
           ui:field: RepoUrlPicker
           ui:options:
             allowedHosts: [github.com]
-            allowedOwners: [DSurya11]
+            allowedOwners: [surya-idp]
             # The repo is created with the signed-in user's GitHub token: a GitHub App
             # installation token cannot create repos in a user account (POST /user/repos).
             requestUserCredentials:
@@ -87,7 +87,7 @@ spec:
       name: Open deploy PR in env-config
       action: publish:github:pull-request
       input:
-        repoUrl: github.com?owner=DSurya11&repo=idp-gitops
+        repoUrl: github.com?owner=surya-idp&repo=idp-gitops
         branchName: add-${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
         title: "Deploy ${{ parameters.repoUrl | parseRepoUrl | pick('repo') }} (golden path)"
         description: |

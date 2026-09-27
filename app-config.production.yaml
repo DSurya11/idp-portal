@@ -73,16 +73,16 @@ catalog:
   locations:
     # The first real service in the catalog.
     - type: url
-      target: https://github.com/DSurya11/feature-flag-service/blob/main/catalog-info.yaml
+      target: https://github.com/surya-idp/feature-flag-service/blob/main/catalog-info.yaml
 
     # Every golden path template, listed in one Location read from GitHub: adding or
     # changing a template is a git push, no image rebuild. (Template is allowed by the
     # global catalog.rules in app-config.yaml; nested targets do not inherit per-location rules.)
     - type: url
-      target: https://github.com/DSurya11/idp-portal/blob/main/templates/all-templates.yaml
+      target: https://github.com/surya-idp/idp-portal/blob/main/templates/all-templates.yaml
 
     - type: url
-      target: https://github.com/DSurya11/idp-portal/blob/main/catalog-info.yaml
+      target: https://github.com/surya-idp/idp-portal/blob/main/catalog-info.yaml
 
     # The guest user/group that guest sign-in resolves to (path relative to the
     # container's working directory)

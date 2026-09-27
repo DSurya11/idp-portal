@@ -4,7 +4,7 @@ metadata:
   name: ${{ values.name }}
   description: ${{ values.description }}
   annotations:
-    github.com/project-slug: DSurya11/${{ values.name }}
+    github.com/project-slug: surya-idp/${{ values.name }}
     backstage.io/kubernetes-id: ${{ values.name }}
   tags:
     - python
