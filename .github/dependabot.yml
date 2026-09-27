@@ -12,7 +12,15 @@ updates:
     schedule: {interval: weekly}
     ignore:
       - dependency-name: "@backstage/*"
+      # Majors (React 19, react-router 7+, ...) must match what Backstage supports; they move
+      # with `backstage-cli versions:bump`, not one package at a time.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups: {npm: {patterns: ["*"], update-types: [minor, patch]}}
   - package-ecosystem: docker
     directory: /packages/backend
     schedule: {interval: weekly}
+    ignore:
+      # Node major must be in package.json "engines" (22 || 24)
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
